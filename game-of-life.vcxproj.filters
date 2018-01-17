@@ -4,6 +4,9 @@
     <Filter Include="static">
       <UniqueIdentifier>{b4048c29-e491-4ee5-90b1-601ae7bf8801}</UniqueIdentifier>
     </Filter>
+    <Filter Include="externals">
+      <UniqueIdentifier>{70412c35-5ad9-40ec-966c-8a2f1c0eaea3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.hpp">
@@ -18,5 +21,8 @@
       <Filter>static</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="glad.c">
+      <Filter>externals</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
