@@ -62,10 +62,34 @@ int main(int argc, char *argv[]) {
 		glViewport(0, 0, 1920, 1080);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+		GLfloat vertices[] = {
+			-0.5f, -0.5f, 0.0f,
+			0.5f, -0.5f, 0.0f,
+			0.0f,  0.5f, 0.0f
+		};
+
+		const GLuint program = glmw::create_program("assets/shaders/basic.vs", "assets/shaders/basic.fs");
+		glUseProgram(program);
+
+		GLuint vao;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		GLuint vbo;
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GL_FLOAT), vertices, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+
 		while (!glfwWindowShouldClose(window)) {
 			input(window);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glUseProgram(program);
+			glBindVertexArray(vao);
+			glDrawArrays(GL_TRIANGLES, 0, 3);
 			glfwSwapBuffers(window);
 		}
 	} catch (std::exception exception) {
