@@ -7,6 +7,9 @@
     <Filter Include="externals">
       <UniqueIdentifier>{70412c35-5ad9-40ec-966c-8a2f1c0eaea3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ecs">
+      <UniqueIdentifier>{d9e6dccb-ec66-4c92-a209-311dd0732889}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.hpp">
@@ -14,6 +17,15 @@
     </ClInclude>
     <ClInclude Include="targetver.hpp">
       <Filter>static</Filter>
+    </ClInclude>
+    <ClInclude Include="component.hpp">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="entity.hpp">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="systems.hpp">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -23,6 +35,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="glad.c">
       <Filter>externals</Filter>
+    </ClCompile>
+    <ClCompile Include="systems.cpp">
+      <Filter>ecs</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
