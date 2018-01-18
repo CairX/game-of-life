@@ -63,10 +63,12 @@ int main(int argc, char *argv[]) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		GLfloat vertices[] = {
-			-0.5f, -0.5f, 0.0f,
+			0.5f,  0.5f, 0.0f,
 			0.5f, -0.5f, 0.0f,
-			0.0f,  0.5f, 0.0f
+			-0.5f, -0.5f, 0.0f,
+			-0.5f,  0.5f, 0.0f
 		};
+		GLuint indices[] = { 0, 1, 3, 1, 2, 3 };
 
 		const GLuint program = glmw::create_program("assets/shaders/basic.vs", "assets/shaders/basic.fs");
 		glUseProgram(program);
@@ -78,10 +80,15 @@ int main(int argc, char *argv[]) {
 		GLuint vbo;
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GL_FLOAT), vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GL_FLOAT), vertices, GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+
+		GLuint ebo;
+		glGenBuffers(1, &ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 		while (!glfwWindowShouldClose(window)) {
 			input(window);
@@ -89,7 +96,7 @@ int main(int argc, char *argv[]) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUseProgram(program);
 			glBindVertexArray(vao);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glfwSwapBuffers(window);
 		}
 	} catch (std::exception exception) {
