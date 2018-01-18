@@ -2,7 +2,16 @@
 
 #include <exception>
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "glmw.hpp"
+
+static const unsigned int WINDOW_WIDTH = 1920;
+static const unsigned int WINDOW_HEIGHT = 1080;
+static const unsigned int VIEW_WIDTH = 1080;
+static const unsigned int VIEW_HEIGHT = 1080;
+static const unsigned int VIEW_X = std::floor((WINDOW_WIDTH - VIEW_WIDTH) * 0.5f);
+static const unsigned int VIEW_Y = std::floor((WINDOW_HEIGHT - VIEW_HEIGHT) * 0.5f);
 
 void error_glfw(int error, const char* description) {
 	std::cerr << error << ": " << description << std::endl;
@@ -30,7 +39,7 @@ void initiate_glad() {
 
 GLFWwindow* create_window() {
 	GLFWwindow *window = glfwCreateWindow(
-		1920, 1080,
+		WINDOW_WIDTH, WINDOW_HEIGHT,
 		"Game of Life",
 		nullptr, nullptr);
 
@@ -59,8 +68,11 @@ int main(int argc, char *argv[]) {
 		initiate_glad();
 
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		glViewport(0, 0, 1920, 1080);
+		glViewport(VIEW_X, VIEW_Y, VIEW_WIDTH, VIEW_HEIGHT);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		glm::mat4 projection = glm::ortho(0.0f, 10.0f, 0.0f, 10.0f, 0.0f, 100.0f);
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 0.0f));
 
 		GLfloat vertices[] = {
 			0.5f,  0.5f, 0.0f,
@@ -72,6 +84,8 @@ int main(int argc, char *argv[]) {
 
 		const GLuint program = glmw::create_program("assets/shaders/basic.vs", "assets/shaders/basic.fs");
 		glUseProgram(program);
+		glUniformMatrix4fv(glGetUniformLocation(program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
 		GLuint vao;
 		glGenVertexArrays(1, &vao);
