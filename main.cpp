@@ -2,16 +2,19 @@
 
 #include <exception>
 #include <iostream>
+#include <memory>
+#include <vector>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "entity.hpp"
 #include "glmw.hpp"
 
-static const unsigned int WINDOW_WIDTH = 1920;
-static const unsigned int WINDOW_HEIGHT = 1080;
-static const unsigned int VIEW_WIDTH = 1080;
-static const unsigned int VIEW_HEIGHT = 1080;
-static const unsigned int VIEW_X = std::floor((WINDOW_WIDTH - VIEW_WIDTH) * 0.5f);
-static const unsigned int VIEW_Y = std::floor((WINDOW_HEIGHT - VIEW_HEIGHT) * 0.5f);
+static const unsigned int WINDOW_WIDTH = 960;
+static const unsigned int WINDOW_HEIGHT = 960;
+static const unsigned int VIEW_WIDTH = 960;
+static const unsigned int VIEW_HEIGHT = 960;
+static const unsigned int VIEW_X = static_cast<unsigned int>(std::floor((WINDOW_WIDTH - VIEW_WIDTH) * 0.5f));
+static const unsigned int VIEW_Y = static_cast<unsigned int>(std::floor((WINDOW_HEIGHT - VIEW_HEIGHT) * 0.5f));
 
 void error_glfw(int error, const char* description) {
 	std::cerr << error << ": " << description << std::endl;
@@ -72,7 +75,6 @@ int main(int argc, char *argv[]) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		glm::mat4 projection = glm::ortho(0.0f, 10.0f, 0.0f, 10.0f, 0.0f, 100.0f);
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 0.0f));
 
 		GLfloat vertices[] = {
 			0.5f,  0.5f, 0.0f,
@@ -85,7 +87,6 @@ int main(int argc, char *argv[]) {
 		const GLuint program = glmw::create_program("assets/shaders/basic.vs", "assets/shaders/basic.fs");
 		glUseProgram(program);
 		glUniformMatrix4fv(glGetUniformLocation(program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
 		GLuint vao;
 		glGenVertexArrays(1, &vao);
@@ -104,13 +105,36 @@ int main(int argc, char *argv[]) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+		std::vector<std::shared_ptr<ent::entity>> entities;
+		const int columns = 10;
+		const int rows = 10;
+		const float column_multiplier = 1.0f / columns;
+		const float row_multiplier = 1.0f / rows;
+		for (int i = 0; i < columns * rows; i++) {
+			float x = (i % columns) + 0.5f;
+			float y = (i / rows) + 0.5f;
+			auto e = std::make_shared<ent::entity>();
+			e->add<cmp::transform>(std::make_shared<cmp::transform>(glm::vec3(x, y, 0.0f)));
+			e->add<cmp::render>(std::make_shared<cmp::render>(vao, 6));
+			e->add<cmp::visual>(std::make_shared<cmp::visual>(glm::vec3(x * column_multiplier, y * row_multiplier, 1.0f)));
+			entities.push_back(e);
+		}
+
 		while (!glfwWindowShouldClose(window)) {
 			input(window);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUseProgram(program);
-			glBindVertexArray(vao);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			for (std::shared_ptr<ent::entity> e : entities) {
+				auto transform = e->get<cmp::transform>();
+				auto render = e->get<cmp::render>();
+				auto visual = e->get<cmp::visual>();
+				glBindVertexArray(render->vao);
+				glm::mat4 model = glm::translate(glm::mat4(1.0f), transform->position);
+				glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+				glUniform3fv(glGetUniformLocation(program, "color"), 1, glm::value_ptr(visual->color));
+				glDrawElements(GL_TRIANGLES, render->count, GL_UNSIGNED_INT, 0);
+			}
 			glfwSwapBuffers(window);
 		}
 	} catch (std::exception exception) {
