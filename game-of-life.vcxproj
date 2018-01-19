@@ -156,6 +156,7 @@
     <ClInclude Include="component.hpp" />
     <ClInclude Include="entity.hpp" />
     <ClInclude Include="glmw.hpp" />
+    <ClInclude Include="grid.hpp" />
     <ClInclude Include="stdafx.hpp" />
     <ClInclude Include="systems.hpp" />
     <ClInclude Include="targetver.hpp" />
@@ -167,6 +168,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="glmw.cpp" />
+    <ClCompile Include="grid.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

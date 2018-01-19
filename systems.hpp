@@ -28,3 +28,20 @@ namespace sys {
 		float timer;
 	};
 }
+
+namespace rndr {
+	class renderer {
+	public:
+		virtual ~renderer() = default;
+		virtual void render(std::vector<std::shared_ptr<ent::entity>> &entities) = 0;
+	};
+
+	class world : public renderer {
+	public:
+		world(glm::mat4 projection);
+		void render(std::vector<std::shared_ptr<ent::entity>> &entities) override;
+
+	private:
+		GLuint program;
+	};
+}

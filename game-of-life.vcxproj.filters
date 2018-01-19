@@ -29,6 +29,7 @@
     </ClInclude>
     <ClInclude Include="glmw.hpp" />
     <ClInclude Include="clock.hpp" />
+    <ClInclude Include="grid.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -43,5 +44,6 @@
     </ClCompile>
     <ClCompile Include="glmw.cpp" />
     <ClCompile Include="clock.cpp" />
+    <ClCompile Include="grid.cpp" />
   </ItemGroup>
 </Project>
