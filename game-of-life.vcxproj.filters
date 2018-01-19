@@ -28,6 +28,7 @@
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="glmw.hpp" />
+    <ClInclude Include="clock.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -41,5 +42,6 @@
       <Filter>ecs</Filter>
     </ClCompile>
     <ClCompile Include="glmw.cpp" />
+    <ClCompile Include="clock.cpp" />
   </ItemGroup>
 </Project>
