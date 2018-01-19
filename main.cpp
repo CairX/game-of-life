@@ -10,6 +10,7 @@
 #include "grid.hpp"
 #include "entity.hpp"
 #include "glmw.hpp"
+#include "string.hpp"
 #include "systems.hpp"
 
 static const unsigned int WINDOW_WIDTH = 960;
@@ -77,8 +78,14 @@ int main(int argc, char *argv[]) {
 		glViewport(VIEW_X, VIEW_Y, VIEW_WIDTH, VIEW_HEIGHT);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-		const glm::mat4 projection = glm::ortho(0.0f, 10.0f, 0.0f, 10.0f, 0.0f, 100.0f);
-		std::vector<std::shared_ptr<ent::entity>> entities = grid::generate();
+		auto file = glmw::get_file_contents("grids/main.txt");
+		auto gridz = str::split(file.value(), '\n');
+		int columns = gridz.front().size();
+		int rows = gridz.size();
+
+		float size = (float)std::max(columns, rows);
+		const glm::mat4 projection = glm::ortho(0.0f, size, 0.0f, size, 0.0f, 100.0f);
+		std::vector<std::shared_ptr<ent::entity>> entities = grid::generate(columns, rows, gridz);
 
 		sys::life life;
 		sys::visuals visuals;
@@ -91,9 +98,9 @@ int main(int argc, char *argv[]) {
 			const float runtime = clock.runtime().count() * 0.001f;
 			input(window);
 
-			life.update(entities, delta, runtime);
 			visuals.update(entities, delta, runtime);
 			renderer.render(entities);
+			life.update(entities, delta, runtime);
 
 			glfwSwapBuffers(window);
 		}

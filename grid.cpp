@@ -32,19 +32,21 @@ std::shared_ptr<cmp::render> grid::generate_quad_buffer() {
 	return std::make_shared<cmp::render>(vao, 6);
 }
 
-std::vector<std::shared_ptr<ent::entity>> grid::generate() {
-	const int columns = 10;
-	const int rows = 10;
+std::vector<std::shared_ptr<ent::entity>> grid::generate(
+	const int columns, const int rows,
+	const std::vector<std::string> &data) {
+
 	const float column_multiplier = 1.0f / columns;
 	const float row_multiplier = 1.0f / rows;
 
 	std::vector<std::shared_ptr<ent::entity>> entities;
-	std::array<std::array<std::shared_ptr<cmp::cell>, rows>, columns> grid;
+	std::vector<std::vector<std::shared_ptr<cmp::cell>>> grid;
 
 	const auto quad = generate_quad_buffer();
 
 	// Generate entities
 	for (int x = 0; x < columns; x++) {
+		grid.push_back(std::vector<std::shared_ptr<cmp::cell>>(rows));
 		for (int y = 0; y < rows; y++) {
 			const glm::vec3 position(x + 0.5f, y + 0.5f, 0.0f);
 			const glm::vec3 color(x * column_multiplier, y * row_multiplier, 1.0f);
@@ -53,7 +55,7 @@ std::vector<std::shared_ptr<ent::entity>> grid::generate() {
 			e->add<cmp::transform>(std::make_shared<cmp::transform>(position));
 			e->add<cmp::render>(quad);
 			e->add<cmp::visual>(std::make_shared<cmp::visual>(color));
-			const auto cell = std::make_shared<cmp::cell>();
+			const auto cell = std::make_shared<cmp::cell>(data[rows - 1 - y][x] == '#');
 			e->add<cmp::cell>(cell);
 
 			entities.push_back(e);
@@ -80,15 +82,6 @@ std::vector<std::shared_ptr<ent::entity>> grid::generate() {
 				cell->neighbours.push_back(grid[neighbour_x][neighbour_y]);
 			}
 		}
-	}
-
-	// Initially alive cells for testing
-	const std::vector<std::pair<int, int>> blinker{
-		{ 5, 4 }, { 5, 5 }, { 5, 6 },
-	};
-	for (const auto position : blinker) {
-		const std::shared_ptr<cmp::cell> cell = grid[position.first][position.second];
-		cell->alive = true;
 	}
 
 	return entities;
