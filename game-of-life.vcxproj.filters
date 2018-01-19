@@ -30,6 +30,7 @@
     <ClInclude Include="glmw.hpp" />
     <ClInclude Include="clock.hpp" />
     <ClInclude Include="grid.hpp" />
+    <ClInclude Include="string.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -158,6 +158,7 @@
     <ClInclude Include="glmw.hpp" />
     <ClInclude Include="grid.hpp" />
     <ClInclude Include="stdafx.hpp" />
+    <ClInclude Include="string.hpp" />
     <ClInclude Include="systems.hpp" />
     <ClInclude Include="targetver.hpp" />
   </ItemGroup>
