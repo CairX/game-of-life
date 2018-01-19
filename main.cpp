@@ -1,13 +1,17 @@
 #include "stdafx.hpp"
 
+#include <array>
 #include <exception>
 #include <iostream>
 #include <memory>
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "clock.hpp"
 #include "entity.hpp"
 #include "glmw.hpp"
+#include "systems.hpp"
 
 static const unsigned int WINDOW_WIDTH = 960;
 static const unsigned int WINDOW_HEIGHT = 960;
@@ -110,25 +114,70 @@ int main(int argc, char *argv[]) {
 		const int rows = 10;
 		const float column_multiplier = 1.0f / columns;
 		const float row_multiplier = 1.0f / rows;
-		for (int i = 0; i < columns * rows; i++) {
-			float x = (i % columns) + 0.5f;
-			float y = (i / rows) + 0.5f;
-			auto e = std::make_shared<ent::entity>();
-			e->add<cmp::transform>(std::make_shared<cmp::transform>(glm::vec3(x, y, 0.0f)));
-			e->add<cmp::render>(std::make_shared<cmp::render>(vao, 6));
-			e->add<cmp::visual>(std::make_shared<cmp::visual>(glm::vec3(x * column_multiplier, y * row_multiplier, 1.0f)));
-			entities.push_back(e);
+		std::array<std::array<std::shared_ptr<cmp::cell>, rows>, columns> grid;
+
+		for (int x = 0; x < columns; x++) {
+			for (int y = 0; y < rows; y++) {
+				const float position_x = x + 0.5f;
+				const float position_y = y + 0.5f;
+				auto e = std::make_shared<ent::entity>();
+				e->add<cmp::transform>(std::make_shared<cmp::transform>(glm::vec3(position_x, position_y, 0.0f)));
+				e->add<cmp::render>(std::make_shared<cmp::render>(vao, 6));
+				e->add<cmp::visual>(std::make_shared<cmp::visual>(glm::vec3(x * column_multiplier, y * row_multiplier, 1.0f)));
+				const auto cell = std::make_shared<cmp::cell>();
+				e->add<cmp::cell>(cell);
+				entities.push_back(e);
+				grid[x][y] = cell;
+			}
 		}
 
+		const std::vector<std::pair<int, int>> directions{
+			{ -1,  1 }, { 0,  1 }, { 1,  1 },
+			{ -1,  0 },            { 1,  0 },
+			{ -1, -1 }, { 0, -1 }, { 1, -1 }
+		};
+		for (int x = 0; x < columns; x++) {
+			for (int y = 0; y < rows; y++) {
+				std::shared_ptr<cmp::cell> cell = grid[x][y];
+				for (const auto direction : directions) {
+					const int neighbour_x = x + direction.first;
+					const int neighbour_y = y + direction.second;
+
+					if (neighbour_x < 0 || neighbour_x >= columns) { continue; }
+					if (neighbour_y < 0 || neighbour_y >= rows) { continue; }
+
+					cell->neighbours.push_back(grid[neighbour_x][neighbour_y]);
+				}
+			}
+		}
+
+		const std::vector<std::pair<int, int>> blinker{
+			{ 5, 4 }, { 5, 5 }, { 5, 6 },
+		};
+		for (const auto position : blinker) {
+			std::shared_ptr<cmp::cell> cell = grid[position.first][position.second];
+			cell->alive = true;
+		}
+
+		sys::life life;
+		sys::visuals visuals;
+		clk::clock clock(std::chrono::milliseconds(1000 / 60));
+
 		while (!glfwWindowShouldClose(window)) {
+			clock.sleep();
+			const float delta = clock.tick().count() * 0.001f;
+			const float runtime = clock.runtime().count() * 0.001f;
 			input(window);
+
+			life.update(entities, delta, runtime);
+			visuals.update(entities, delta, runtime);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUseProgram(program);
 			for (std::shared_ptr<ent::entity> e : entities) {
-				auto transform = e->get<cmp::transform>();
-				auto render = e->get<cmp::render>();
-				auto visual = e->get<cmp::visual>();
+				const auto transform = e->get<cmp::transform>();
+				const auto render = e->get<cmp::render>();
+				const auto visual = e->get<cmp::visual>();
 				glBindVertexArray(render->vao);
 				glm::mat4 model = glm::translate(glm::mat4(1.0f), transform->position);
 				glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));

@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+#include <vector>
 
 namespace cmp {
 	class component {};
@@ -26,5 +28,15 @@ namespace cmp {
 
 		visual(const glm::vec3 color) :
 			color(color) {}
+	};
+
+	class cell : public component {
+	public:
+		bool previously = false;
+		bool alive;
+		std::vector<std::shared_ptr<cell>> neighbours;
+
+		cell() : alive(false) {}
+		cell(const bool alive) : alive(alive) {}
 	};
 }
