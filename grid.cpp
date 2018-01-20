@@ -49,7 +49,7 @@ std::vector<std::shared_ptr<ent::entity>> grid::generate(
 		grid.push_back(std::vector<std::shared_ptr<ent::entity>>(rows));
 		for (int y = 0; y < rows; y++) {
 			const glm::vec3 position(x + 0.5f, y + 0.5f, 0.0f);
-			const glm::vec3 color(x * column_multiplier, y * row_multiplier, 1.0f);
+			const glm::vec3 color(0.0f);
 
 			auto entity = std::make_shared<ent::entity>();
 			entity->add<cmp::transform>(std::make_shared<cmp::transform>(position));
