@@ -10,13 +10,14 @@ void sys::visuals::update(std::vector<std::shared_ptr<ent::entity>> &entities, c
 	for (auto entity : entities) {
 		auto visual = entity->get<cmp::visual>();
 		if (visual == nullptr) { continue; }
+
 		const auto cell = entity->get<cmp::cell>();
 		if (cell == nullptr) { continue; }
 
 		if (cell->alive) {
-			visual->color = glm::vec3(1.0f);
+			visual->color = glm::vec3(0.992f, 0.964f, 0.890f);
 		} else {
-			visual->color = glm::vec3(0.2f);
+			visual->color = glm::vec3(0, 0.168f, 0.212f);
 		}
 	}
 }
