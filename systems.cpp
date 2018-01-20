@@ -21,9 +21,25 @@ void sys::visuals::update(std::vector<std::shared_ptr<ent::entity>> &entities, c
 	}
 }
 
+void sys::neighbours::update(std::vector<std::shared_ptr<ent::entity>> &entities, float delta, float runtime) {
+	timer += delta;
+	if (timer < interval) { return; }
+	timer = 0.0f;
+
+	for (auto entity : entities) {
+		const auto neighbours = entity->get<cmp::neighbours>();
+		if (neighbours == nullptr) { continue; }
+
+		neighbours->alive = 0;
+		for (const auto cell : neighbours->cells) {
+			if (cell->alive) { neighbours->alive++; }
+		}
+	}
+}
+
 void sys::life::update(std::vector<std::shared_ptr<ent::entity>> &entities, const float delta, const float runtime) {
 	timer += delta;
-	if (timer < interval) {return; }
+	if (timer < interval) { return; }
 
 	timer = 0.0f;
 	std::vector<std::shared_ptr<cmp::cell>> cells;
@@ -32,32 +48,25 @@ void sys::life::update(std::vector<std::shared_ptr<ent::entity>> &entities, cons
 		const auto cell = entity->get<cmp::cell>();
 		if (cell == nullptr) { continue; }
 
-		cell->previously = cell->alive;
-		cells.push_back(cell);
-	}
+		const auto neighbours = entity->get<cmp::neighbours>();
+		if (neighbours == nullptr) { continue; }
 
-	for (auto cell : cells) {
-		unsigned int alive_neighbours = 0;
-		for (const auto neighbour : cell->neighbours) {
-			if (neighbour->previously) { alive_neighbours++; }
-		}
-
-		if (cell->previously) {
+		if (cell->alive) {
 			// 1. Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
-			if (alive_neighbours < 2) {
+			if (neighbours->alive < 2) {
 				cell->alive = false;
 			}
 			// 2. Any live cell with two or three live neighbours lives on to the next generation.
-			else if (alive_neighbours == 2 || alive_neighbours == 3) {
+			else if (neighbours->alive == 2 || neighbours->alive == 3) {
 				cell->alive = true;
 			}
 			// 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
-			else if (alive_neighbours > 3) {
+			else if (neighbours->alive > 3) {
 				cell->alive = false;
 			}
 		} else {
 			// 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-			cell->alive = (alive_neighbours == 3);
+			cell->alive = neighbours->alive == 3;
 		}
 	}
 }

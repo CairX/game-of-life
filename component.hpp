@@ -22,21 +22,26 @@ namespace cmp {
 			vao(vao), count(count) {}
 	};
 
+	class cell : public component {
+	public:
+		bool alive;
+
+		cell() : alive(false) {}
+		cell(const bool alive) : alive(alive) {}
+	};
+
+	class neighbours : public component {
+	public:
+		unsigned int alive;
+		std::vector<std::shared_ptr<cell>> cells;
+
+		neighbours() : alive(0) {}
+	};
+
 	class visual : public component {
 	public:
 		glm::vec3 color;
 
-		visual(const glm::vec3 color) :
-			color(color) {}
-	};
-
-	class cell : public component {
-	public:
-		bool previously = false;
-		bool alive;
-		std::vector<std::shared_ptr<cell>> neighbours;
-
-		cell() : alive(false) {}
-		cell(const bool alive) : alive(alive) {}
+		visual(const glm::vec3 color) : color(color) {}
 	};
 }

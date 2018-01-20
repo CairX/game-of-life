@@ -87,6 +87,7 @@ int main(int argc, char *argv[]) {
 		const glm::mat4 projection = glm::ortho(0.0f, size, 0.0f, size, 0.0f, 100.0f);
 		std::vector<std::shared_ptr<ent::entity>> entities = grid::generate(columns, rows, gridz);
 
+		sys::neighbours neighbours;
 		sys::life life;
 		sys::visuals visuals;
 		rndr::world renderer(projection);
@@ -100,6 +101,7 @@ int main(int argc, char *argv[]) {
 
 			visuals.update(entities, delta, runtime);
 			renderer.render(entities);
+			neighbours.update(entities, delta, runtime);
 			life.update(entities, delta, runtime);
 
 			glfwSwapBuffers(window);

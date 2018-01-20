@@ -12,9 +12,14 @@ namespace sys {
 		virtual void update(std::vector<std::shared_ptr<ent::entity>> &entities, float delta, float runtime) = 0;
 	};
 
-	class visuals : public system {
+	class neighbours : public system {
 	public:
+		neighbours() : neighbours(1.0f) {}
+		neighbours(const float interval) : interval(interval), timer(0.0f) {}
 		void update(std::vector<std::shared_ptr<ent::entity>> &entities, float delta, float runtime) override;
+	private:
+		float interval;
+		float timer;
 	};
 
 	class life : public system {
@@ -26,6 +31,11 @@ namespace sys {
 	private:
 		float interval;
 		float timer;
+	};
+
+	class visuals : public system {
+	public:
+		void update(std::vector<std::shared_ptr<ent::entity>> &entities, float delta, float runtime) override;
 	};
 }
 

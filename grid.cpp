@@ -40,26 +40,26 @@ std::vector<std::shared_ptr<ent::entity>> grid::generate(
 	const float row_multiplier = 1.0f / rows;
 
 	std::vector<std::shared_ptr<ent::entity>> entities;
-	std::vector<std::vector<std::shared_ptr<cmp::cell>>> grid;
+	std::vector<std::vector<std::shared_ptr<ent::entity>>> grid;
 
 	const auto quad = generate_quad_buffer();
 
 	// Generate entities
 	for (int x = 0; x < columns; x++) {
-		grid.push_back(std::vector<std::shared_ptr<cmp::cell>>(rows));
+		grid.push_back(std::vector<std::shared_ptr<ent::entity>>(rows));
 		for (int y = 0; y < rows; y++) {
 			const glm::vec3 position(x + 0.5f, y + 0.5f, 0.0f);
 			const glm::vec3 color(x * column_multiplier, y * row_multiplier, 1.0f);
 
-			auto e = std::make_shared<ent::entity>();
-			e->add<cmp::transform>(std::make_shared<cmp::transform>(position));
-			e->add<cmp::render>(quad);
-			e->add<cmp::visual>(std::make_shared<cmp::visual>(color));
-			const auto cell = std::make_shared<cmp::cell>(data[rows - 1 - y][x] == '#');
-			e->add<cmp::cell>(cell);
+			auto entity = std::make_shared<ent::entity>();
+			entity->add<cmp::transform>(std::make_shared<cmp::transform>(position));
+			entity->add<cmp::render>(quad);
+			entity->add<cmp::visual>(std::make_shared<cmp::visual>(color));
+			entity->add<cmp::cell>(std::make_shared<cmp::cell>(data[rows - 1 - y][x] == '#'));
+			entity->add<cmp::neighbours>(std::make_shared<cmp::neighbours>());
 
-			entities.push_back(e);
-			grid[x][y] = cell;
+			entities.push_back(entity);
+			grid[x][y] = entity;
 		}
 	}
 
@@ -71,7 +71,7 @@ std::vector<std::shared_ptr<ent::entity>> grid::generate(
 	};
 	for (int x = 0; x < columns; x++) {
 		for (int y = 0; y < rows; y++) {
-			std::shared_ptr<cmp::cell> cell = grid[x][y];
+			std::shared_ptr<ent::entity> entity = grid[x][y];
 			for (const auto direction : directions) {
 				const int neighbour_x = x + direction.first;
 				const int neighbour_y = y + direction.second;
@@ -79,7 +79,7 @@ std::vector<std::shared_ptr<ent::entity>> grid::generate(
 				if (neighbour_x < 0 || neighbour_x >= columns) { continue; }
 				if (neighbour_y < 0 || neighbour_y >= rows) { continue; }
 
-				cell->neighbours.push_back(grid[neighbour_x][neighbour_y]);
+				entity->get<cmp::neighbours>()->cells.push_back(grid[neighbour_x][neighbour_y]->get<cmp::cell>());
 			}
 		}
 	}
