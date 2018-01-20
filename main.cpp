@@ -79,6 +79,9 @@ int main(int argc, char *argv[]) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		auto file = glmw::get_file_contents("grids/main.txt");
+		if (!file.has_value()) {
+			throw std::exception("Failed to read file: grids/main.txt");
+		}
 		auto gridz = str::split(file.value(), '\n');
 		int columns = gridz.front().size();
 		int rows = gridz.size();
