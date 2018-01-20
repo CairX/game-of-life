@@ -83,10 +83,10 @@ int main(int argc, char *argv[]) {
 			throw std::exception("Failed to read file: grids/main.txt");
 		}
 		auto gridz = str::split(file.value(), '\n');
-		int columns = gridz.front().size();
-		int rows = gridz.size();
+		const int columns = gridz.front().size();
+		const int rows = gridz.size();
 
-		float size = (float)std::max(columns, rows);
+		const float size = static_cast<float>(std::max(columns, rows));
 		const glm::mat4 projection = glm::ortho(0.0f, size, 0.0f, size, 0.0f, 100.0f);
 		std::vector<std::shared_ptr<ent::entity>> entities = grid::generate(columns, rows, gridz);
 
